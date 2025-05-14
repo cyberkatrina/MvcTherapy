@@ -1,0 +1,88 @@
+﻿
+/* --- Branding --- */
+a.navbar-brand {
+  white-space: normal;
+  text-align: center;
+  word-break: break-word;
+  justify-content: center;
+  color: #005999;
+}
+
+/* --- Links --- */
+a {
+  color: #0077cc;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #005999;
+  text-decoration: none;
+}
+
+/* --- Buttons --- */
+.btn-primary {
+  color: #ffffff;
+  background-color: #1b6ec2;
+  border-color: #1861ac;
+}
+
+button.accept-policy {
+  font-size: 1rem;
+  line-height: inherit;
+}
+
+/* --- Navigation Pills --- */
+.nav-pills .nav-link.active,
+.nav-pills .show > .nav-link {
+  color: #ffffff;
+  background-color: #1b6ec2;
+  border-color: #1861ac;
+}
+
+/* --- Layout Utilities --- */
+.border-top {
+  border-top: 1px solid #e5e5e5;
+}
+
+.border-bottom {
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.box-shadow {
+  box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.05);
+}
+
+/* --- Footer --- */
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  white-space: nowrap;
+  line-height: 30px;
+  background-color: #a6bcc4;
+  text-align: center;
+  border-top: none;
+  color: #6c757d;
+  font-size: 0.875rem;
+}
+
+/* --- Navbar Hover Styles --- */
+.navbar-nav .nav-link {
+  color: #333;
+  transition: background-color 0.3s, color 0.3s;
+  font-size: 23px;
+}
+
+.navbar-nav .nav-link:hover {
+  background-color: #e9ecef; /* light gray hover background */
+  color: #005999; /* deeper blue text */
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.navbar-collapse {
+  flex-grow: 0.07;
+}
+
+

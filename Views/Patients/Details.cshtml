@@ -1,0 +1,238 @@
+@model MvcTherapy.Models.Patient // tells view what type of model to work with
+
+@{
+    ViewData["Title"] = "Patient Details"; // set browser title for Layout
+}
+
+<div class="details-container">
+    <h1 class="details-title">Patient Details</h1>
+    <hr />
+
+    <dl class="row">
+        <dt class="col-sm-5 fw-bold">
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd class="col-sm-6">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+
+        <dt class="col-sm-5 fw-bold">
+            @Html.DisplayNameFor(model => model.Appointment)
+        </dt>
+        <dd class="col-sm-6">
+            @Model.Appointment.ToString("MMMM dd, yyyy h:mm tt")
+        </dd>
+
+        <dt class="col-sm-5 fw-bold">
+            @Html.DisplayNameFor(model => model.Goals)
+        </dt>
+        <dd class="col-sm-6">
+            @Html.DisplayFor(model => model.Goals)
+        </dd>
+
+        <dt class="col-sm-5 fw-bold">Most Recent Rating</dt>
+        <dd class="col-sm-6" id="mostRecentRating">
+            @{
+                var RecentRating = Model.Ratings?
+                .OrderByDescending(r => r.DateRecorded)
+                .FirstOrDefault();
+
+                if (RecentRating != null)
+                {
+                    var notes = RecentRating.Notes;
+                    // add notes to rating display if they exist (server-side)
+                    if (!string.IsNullOrWhiteSpace(notes))
+                    {
+                        <text>@RecentRating.Rating (@notes)</text>
+                    }
+                    else
+                    {
+                        <text>@RecentRating.Rating</text>
+                    }
+                }
+                else
+                {
+                    <text>No ratings recorded</text>
+                }
+            }
+        </dd>
+
+    </dl>
+
+    <!-- Button to toggle form visibility -->
+    <center>
+        <button id="toggleRatingFormBtn" class="btn btn-primary">Add New Rating</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Back to List</a>
+    </center>
+
+    <!-- Form for adding a new rating (hidden by default) -->
+    <div id="ratingFormContainer" class="mt-5" style="display: none;">
+        @Html.AntiForgeryToken()
+        <form id="ratingForm">
+            <input type="hidden" id="PatientId" value="@Model.Id" />
+
+            <div class="mb-3">
+                <label for="Rating" class="form-label">Rating (0–10)</label>
+                <select id="Rating" class="form-control" required>
+                    <option value="">Select Rating</option>
+                    @for (int i = 0; i <= 10; i++)
+                    {
+                        <option value="@i">@i</option>
+                    }
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="Notes" class="form-label">Notes (optional)</label>
+                <textarea id="Notes" class="form-control" rows="3"></textarea>
+            </div>
+
+            <div class="d-flex justify-content-start gap-2">
+                <button type="submit" class="btn btn-success btn-sm">Save</button>
+                <button type="button" class="btn btn-secondary btn-sm cancel-edit">Cancel</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="mt-4">
+        <center>
+            <h5 class="mb-3">Progress Over Time</h5>
+        </center>
+        <canvas id="ratingChart" width="400" height="200"></canvas>
+    </div>
+
+</div>
+
+
+@section Scripts {
+    <script>
+        // Logic to toggle the visibility of the rating form
+        document.getElementById('toggleRatingFormBtn').addEventListener('click', function () {
+            const formContainer = document.getElementById('ratingFormContainer');
+            // save current display type in variable to change future display
+            const currentDisplay = formContainer.style.display;
+            // Toggle between 'none' and 'block' to show/hide the form
+            formContainer.style.display = currentDisplay === 'none' ? 'block' : 'none';
+        });
+
+        // LOGIC FOR RATING FORM SUBMISSION
+        document.getElementById('ratingForm').addEventListener('submit', function (e) {
+            // prevents default form submission ( would reload the page), the form is submitted asynchronously instead
+            e.preventDefault();
+            // capture form data
+            const rating = document.getElementById('Rating').value;
+            const notesInputValue = document.getElementById('Notes').value;
+            const patientId = document.getElementById('PatientId').value;
+
+            // send data to the server via fetch
+            fetch('/Ratings/Create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() // Anti-forgery token
+                },
+                // contains the data that is being sent, serialized to JSON
+                body: JSON.stringify({
+                    Rating: rating,
+                    Notes: notesInputValue,
+                    PatientId: patientId
+                })
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error("Network response was not ok.");
+                    return response.json();
+                })
+                .then(data => {
+                    // UPDATE PAGE DYNAMICALLY
+                    // format date to remove year for cleanliness, add to chart labels data
+                    const formattedDate = new Date(data.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+                    ratingChart.data.labels.push(formattedDate);
+                    // new rating value is added to the datasets array of the chart (first dataset)
+                    ratingChart.data.datasets[0].data.push(data.rating);
+                    // notes array initialized in chart code
+                    notes.push(notesInputValue);
+                    if (data.notes.trim() != '') 
+                    {
+                        // add notes to rating display if they exist (client-side) (BUG)
+                        document.querySelector('#mostRecentRating').innerText = `${data.rating} (${data.notes})`;
+                    }
+                    else
+                    {
+                        document.querySelector('#mostRecentRating').innerText = `${data.rating}`;
+                    }
+                    
+                    ratingChart.update();
+                    // clear form fields
+                    document.getElementById('ratingForm').reset();
+                    // Hide form after submission
+                    document.getElementById('ratingFormContainer').style.display = 'none';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Something went wrong.');
+                });
+        });
+        // Logic to close the rating form when Cancel button is clicked
+        document.querySelector('.cancel-edit').addEventListener('click', function () {
+            // Hide the form
+            document.getElementById('ratingFormContainer').style.display = 'none';
+        });
+
+        // LOGIC FOR LINE GRAPH
+        // embed data from the Razor view (server-side) into the JavaScript code (client-side), for rendering dynamic chart
+        const labels = @Html.Raw(Json.Serialize(ViewData["Labels"]));
+        const data = @Html.Raw(Json.Serialize(ViewData["RatingData"]));
+        let notes = @Html.Raw(Json.Serialize(ViewData["Notes"]));
+
+        // where to render chart
+        const ctx = document.getElementById('ratingChart').getContext('2d');
+
+        const ratingChart = new Chart(ctx, {
+            type: 'line', // Initialize line chart
+            data: {
+                labels: labels, // X-axis: Dates
+                datasets: [{
+                    label: "Rating", // Legend/tooltip label
+                    data: data, // Y-axis values: Ratings
+                    borderColor: '#1b6ec2',
+                    backgroundColor: 'rgba(27, 110, 194, 0.1)',
+                    fill: true,
+                    tension: 0.3 // Curve the line slightly
+                }]
+            },
+            options: {
+                responsive: true, // resizes to fit the screen
+                plugins: {
+                    legend: {
+                        display: false,
+                    },
+                    tooltip: {
+                        bodyFont: { size: 14 },
+                        titleFont: { size: 16 },
+                        callbacks: {
+                            // adds a custom note (from the notes array) under the tooltip
+                            afterBody: function (context) {
+                                const index = context[0].dataIndex; // index of the data point that user is hovering over
+                                return notes[index] ? `${notes[index]}` : ''; // returns the note associated with that data index
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            font: { size: 14 }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        max: 10,
+                        ticks: {
+                            font: { size: 14 }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+}

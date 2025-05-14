@@ -1,0 +1,278 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+}
+
+.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
+  color: var(--bs-secondary-color);
+  text-align: end;
+}
+
+.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
+  text-align: start;
+}
+
+/* ============================================================================
+   Patient Table Styles
+============================================================================ */
+
+h1 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+a {
+  color: #0077cc;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #005999;
+  text-decoration: none;
+}
+
+/* --- Filter Form --- */
+form {
+  margin-bottom: 1.5rem;
+}
+
+form input[type="text"] {
+  padding: 0.4rem;
+  margin-right: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+form input[type="submit"] {
+  padding: 0.4rem 0.8rem;
+  background-color: #1b6ec2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+form input[type="submit"]:hover {
+  background-color: #155a9c;
+}
+
+/* --- Table Styling --- */
+table.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  background-color: #fff;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.05);
+  
+}
+
+.table th,
+.table td {
+  padding: 0.75rem 1rem;
+  background-color: #d4f2fd;
+  border: 1px solid #155a9c
+}
+
+/* ============================================================================
+   Action Link Styles
+============================================================================ */
+
+.action-link {
+  display: inline-block;
+  padding: 0.4rem 0.75rem;
+  margin: 0 0.25rem 0.25rem 0;
+  font-size: 0.9rem;
+  text-decoration: none;
+  border-radius: 4px;
+  color: #fff;
+  transition: background-color 0.3s ease;
+}
+
+.action-link.edit {
+  background-color: #17a2b8;
+}
+.action-link.edit:hover {
+  background-color: #138496;
+  color: white;
+}
+
+.action-link.details {
+  background-color: #6c757d;
+}
+.action-link.details:hover {
+  background-color: #5a6268;
+  color: white;
+}
+
+.action-link.delete {
+  background-color: #db5663;
+}
+.action-link.delete:hover {
+  background-color: #c82333;
+  color: white;
+}
+
+.btn-create {
+  display: inline-block;
+  background-color: #0077cc;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.btn-create:hover {
+  background-color: #005999;
+  color: white;
+}
+
+/* --- Home Page Styling --- */
+.home-hero {
+  background-image: url('bg.jpg'); /* adjust path as needed */
+  background-size: cover;
+  background-repeat: no-repeat;
+
+  height: 80vh; /* full viewport height */
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  border-radius: 20px; /* 👈 Rounded corners */
+}
+
+
+.home-title {
+  font-size: 2.75rem;
+  color: #138496;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+.home-description {
+  font-size: 1.1rem;
+  max-width: 800px;
+  margin: 0 auto 20px;
+  line-height: 1.7;
+  color: #343a40;
+}
+
+.home-link {
+  color: #0077cc;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.home-link:hover {
+  color: #005999;
+  text-decoration: underline;
+}
+
+body {
+  background-image: url('bg2.jpg'); /* Path to your image */
+  background-size: cover; /* Ensures the image covers the entire page */
+  background-position: center center; /* Centers the image */
+  background-repeat: no-repeat; /* Prevents image repetition */
+  min-height: 90vh; /* Ensures the background covers the entire height of the viewport */
+}
+
+/* Container for Privacy Policy content */
+.privacy-policy-container {
+  width: 50%; /* Adjust the width for a more left-aligned feel */
+  padding: 20px;
+  border-radius: 8px;
+  /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); */
+  margin-right: 200px;
+}
+
+/* Title Styling */
+.privacy-policy-title {
+  font-size: 2.3rem;
+  text-align: center; /* Align title to the left */
+  margin-bottom: 20px;
+  color: white
+}
+
+/* Paragraph text styling */
+.privacy-policy-text {
+  font-size: 18px;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+/* Add padding to the content */
+.privacy-policy-content {
+  padding: 0;
+}
+
+.details-container {
+  background-color: #bad5da;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+  max-width: 700px;
+  margin: auto;
+  font-size: 20px;
+  color: #155a9c;
+}
+
+.details-title {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: #155a9c;
+  text-align: center;
+}
+
+.form-label {
+  font-size: 20px;
+  color: #333;
+}
+
+.card {
+  border-radius: 12px;
+}
+
+.card-body dl dt {
+  font-size: 0.95rem;
+}
+
+.card-body dl dd {
+  font-size: 1rem;
+}
+
+.btn-delete {
+  background-color: #db5663 !important;
+}
+
+.btn-delete:hover {
+  background-color: #c82333 !important;
+}
+
+
+
+
+
+

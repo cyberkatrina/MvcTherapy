@@ -1,0 +1,134 @@
+@model IEnumerable<MvcTherapy.Models.Patient> // expects to receive a collection of Patient objects, defined in the MvcTherapy.Models namespace
+
+@{
+    ViewData["Title"] = "Index"; // set browser title for Layout
+}
+
+<center>
+    <h1>Current Patients</h1>
+
+    <form asp-controller="Patients" asp-action="Index" method="get">
+        <p>
+            <label>Name: <input type="text" name="SearchString" /></label>
+            <input type="submit" value="Filter" />
+        </p>
+    </form>
+</center>
+
+<p>
+    <a asp-action="Create" class="btn-create">Add New Patient</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Appointment)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Goals)
+            </th>
+
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model) // looping through list of patients — the Model data sent from the controller
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @item.Appointment.ToString("MMMM dd, yyyy - h:mm tt")
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Goals)
+                </td>
+
+                <td>
+                    <button class="btn btn-sm btn-outline-primary edit-btn me-1" data-id="@item.Id">Edit</button>
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary me-1">Details</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">Delete</a>
+                </td>
+
+            </tr>
+            <tr id="editRow-@item.Id" style="display:none;">
+                <td colspan="4" id="editContainer-@item.Id"></td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+@section Scripts {
+    <script>
+        // Selects all HTML elements with the class .edit-btn, loops over each element
+        document.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                // Read data-id attribute from the clicked button
+                const id = this.dataset.id;
+                // Find an element on the page with an ID of clicked button (BUG)
+                const row = document.querySelector(`#editRow-${id}`);
+                const container = document.querySelector(`#editContainer-${id}`);
+
+                // Check if the edit row is already visible
+                if (row.style.display === 'table-row') {
+                    // Hide the row if it's already open
+                    row.style.display = 'none';
+                } else {
+                    // If not open, show it and load the partial view
+                    fetch(`/Patients/LoadEditForm?id=${id}`)
+                        .then(res => res.text())
+                        .then(html => {
+                            // Insert the form HTML into the container
+                            container.innerHTML = html;
+                            // Show the edit row
+                            row.style.display = 'table-row';
+
+                            // Handle form submission
+                            const form = container.querySelector('form');
+                            form.addEventListener('submit', function (e) {
+                                // prevent reloading page on submit
+                                e.preventDefault();
+                                // reads all input values from the form
+                                const formData = new FormData(this);
+                                // converts into a regular JS object that can be sent as JSON
+                                const data = Object.fromEntries(formData.entries());
+
+                                // sends the form data to server via an AJAX POST
+                                fetch(`/Patients/Edit/${id}`, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value // anti-forgery token
+                                    },
+                                    // Converts JS object data into a JSON string, so it can be sent as the body of the HTTP request
+                                    body: JSON.stringify(data)
+                                })
+                                    // parsing the JSON result
+                                    .then(res => res.json())
+                                    // Update the visible row
+                                    .then(updated => {
+                                        //finds the button on the page that has a data-id matching the id value, then climbs up the DOM tree and returns the nearest <tr> that contains that button (BUG)
+                                        const displayRow = document.querySelector(`button[data-id="${id}"]`).closest('tr');
+                                        displayRow.children[0].textContent = updated.name; // Name Row
+                                        displayRow.children[1].textContent = new Date(updated.appointment).toLocaleString(); // Date Row
+                                        displayRow.children[2].textContent = updated.goals; // Goals Row
+                                        row.style.display = 'none'; // hide edit row after saving
+                                    });
+                            });
+
+                            // Handle cancel button
+                            container.querySelector('.cancel-edit').addEventListener('click', () => {
+                                row.style.display = 'none';
+                            });
+                        });
+                }
+            });
+        });
+    </script>
+}
